@@ -5,7 +5,7 @@ import {
   XAxis,
   YAxis,
   discontinuousTimeScaleProviderBuilder,
-  BarSeries
+  BarSeries,
 } from "react-financial-charts";
 import { fetchBinanceData, fetchSymbols, KlineData } from "../data/cryptoInfo";
 
@@ -34,7 +34,10 @@ const FinancialChart: React.FC = () => {
     const getData = async () => {
       setLoaded(false); // 로딩 상태 설정
       try {
-        const chartData = await fetchBinanceData(selectedSymbol, "1h");
+        const chartData = await fetchBinanceData(
+          selectedSymbol,
+          selectedInterval
+        );
         setData(chartData);
         setLoaded(true); // 데이터 로딩 완료
       } catch (error) {
@@ -50,15 +53,20 @@ const FinancialChart: React.FC = () => {
     return <div>Loading chart...</div>;
   }
 
-  const xScaleProvider = discontinuousTimeScaleProviderBuilder().inputDateAccessor(
-    (d) => d.date
-  );
+  const xScaleProvider =
+    discontinuousTimeScaleProviderBuilder().inputDateAccessor((d) => d.date);
 
-  const { data: chartData, xScale, xAccessor, displayXAccessor } =
-    xScaleProvider(data);
+  const {
+    data: chartData,
+    xScale,
+    xAccessor,
+    displayXAccessor,
+  } = xScaleProvider(data);
+
+  const defaultVisiblePeriod = 70; // Number of candles to display by default
 
   const xExtents = [
-    xAccessor(chartData[0]),
+    xAccessor(chartData[Math.max(0, chartData.length - defaultVisiblePeriod)]),
     xAccessor(chartData[chartData.length - 1]),
   ];
 
@@ -87,42 +95,41 @@ const FinancialChart: React.FC = () => {
           value={selectedInterval}
           onChange={(e) => setSelectedInterval(e.target.value)}
         >
-          <option value="5m">5분봉</option>
-          <option value="1h">1시간봉</option>
-          <option value="1d">일봉</option>
+          <option value="5m">5분</option>
+          <option value="1h">1시간</option>
+          <option value="1d">일</option>
         </select>
       </div>
 
-
       {/* 차트 렌더링 */}
       <ChartCanvas
-        height={400}
+        height={500}
         width={800}
-        ratio={1}
+        ratio={window.devicePixelRatio || 1}
         data={chartData}
         xScale={xScale}
         xAccessor={xAccessor}
         displayXAccessor={displayXAccessor}
-        xExtents={xExtents}
+        xExtents={xExtents} // Apply calculated xExtents
         seriesName={selectedSymbol}
       >
-        <Chart id={1} yExtents={(d: KlineData) => [d.high, d.low]}>
-          <XAxis />
+        {/* Candlestick Chart */}
+        <Chart id={1} height={350} yExtents={(d: KlineData) => [d.high, d.low]}>
           <YAxis />
           <CandlestickSeries />
         </Chart>
 
+        {/* Volume Chart */}
         <Chart
           id={2}
-          height={150} // 거래량 차트 높이 설정
+          height={120}
           yExtents={(d: KlineData) => d.volume}
-          origin={(w, h) => [0, h - 150]} // 거래량 차트를 아래에 배치
+          origin={(w, h) => [0, 350 + 10]}
         >
           <XAxis />
           <YAxis />
           <BarSeries yAccessor={(d: KlineData) => d.volume} />
         </Chart>
-
       </ChartCanvas>
     </div>
   );

@@ -72,7 +72,7 @@ function App() {
       </div>
       <div style={{ width: "50%" }}>
         <h2>Results</h2>
-        <ChartView candles={candles} trades={trades} />
+        <ChartView />
       </div>
     </div>
   );

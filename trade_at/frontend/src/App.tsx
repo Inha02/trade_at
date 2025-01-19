@@ -62,6 +62,7 @@ function App() {
     setCandles(data.candles || []);
     setTrades(data.trades || []);
   };
+  const margin = { left: 0, right: 48, top: 0, bottom: 24 };
 
   return (
     <div style={{ display: "flex", flexDirection: "row" }}>
@@ -72,7 +73,7 @@ function App() {
       </div>
       <div style={{ width: "50%" }}>
         <h2>Results</h2>
-        <ChartView />
+        <ChartView margin={margin}/>
       </div>
     </div>
   );

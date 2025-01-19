@@ -1,138 +1,211 @@
-import React, { useState, useEffect } from "react";
-import { ChartCanvas, Chart } from "react-financial-charts";
+import React, { useState } from "react";
 import {
+  discontinuousTimeScaleProviderBuilder,
+  Chart,
+  ChartCanvas,
+  BarSeries,
   CandlestickSeries,
+  lastVisibleItemBasedZoomAnchor,
   XAxis,
   YAxis,
-  discontinuousTimeScaleProviderBuilder,
-  BarSeries,
+  CrossHairCursor,
+  EdgeIndicator,
+  MouseCoordinateX,
+  MouseCoordinateY,
+  ZoomButtons,
+  withSize,
+  withDeviceRatio,
 } from "react-financial-charts";
-import { fetchBinanceData, fetchSymbols, KlineData } from "../data/cryptoInfo";
+import { CryptoInfo } from "../data/CryptoInfo";
+import OHLCTooltip from "./OHLCTooltips";
 
-const FinancialChart: React.FC = () => {
-  const [data, setData] = useState<KlineData[]>([]);
-  const [symbols, setSymbols] = useState<string[]>([]);
-  const [selectedSymbol, setSelectedSymbol] = useState<string>("BTCUSDT");
-  const [selectedInterval, setSelectedInterval] = useState<string>("1h");
-  const [loaded, setLoaded] = useState<boolean>(false);
+interface Margin {
+  left: number;
+  right: number;
+  top: number;
+  bottom: number;
+}
 
-  // 모든 심볼 가져오기
-  useEffect(() => {
-    const getSymbols = async () => {
-      try {
-        const symbolList = await fetchSymbols();
-        setSymbols(symbolList);
-      } catch (error) {
-        console.error("Failed to fetch symbols", error);
-      }
-    };
-    getSymbols();
-  }, []);
+interface FinancialChartProps {
+  dateTimeFormat?: string;
+  height: number;
+  margin: Margin;
+  priceDisplayFormat?: (value: number) => string;
+  ratio: number;
+  width: number;
+}
 
-  // 선택한 심볼의 데이터 가져오기
-  useEffect(() => {
-    const getData = async () => {
-      setLoaded(false); // 로딩 상태 설정
-      try {
-        const chartData = await fetchBinanceData(
-          selectedSymbol,
-          selectedInterval
-        );
-        setData(chartData);
-        setLoaded(true); // 데이터 로딩 완료
-      } catch (error) {
-        console.error("Failed to fetch chart data", error);
-        setLoaded(true); // 실패해도 로딩 완료로 설정
-      }
-    };
+// Some basic style objects
+const axisStyles = {
+  strokeStyle: "#383E55",
+  strokeWidth: 2,
+  tickLabelFill: "#9EAAC7",
+  tickStrokeStyle: "#383E55",
+  gridLinesStrokeStyle: "rgba(56, 62, 85, 0.5)",
+};
 
-    getData();
-  }, [selectedSymbol, selectedInterval]); // 선택된 심볼이 변경될 때마다 데이터 갱신
+const coordinateStyles = {
+  fill: "#383E55",
+  textFill: "#FFFFFF",
+};
 
-  if (!loaded) {
-    return <div>Loading chart...</div>;
+const zoomButtonStyles = {
+  fill: "#383E55",
+  fillOpacity: 0.75,
+  strokeWidth: 0,
+  textFill: "#9EAAC7",
+};
+
+const crossHairStyles = {
+  strokeStyle: "#9EAAC7",
+};
+
+const openCloseColor = (d: { close: number; open: number }) =>
+  d.close > d.open ? "#26a69a" : "#ef5350";
+
+// A simple yExtents calculator
+function yExtentsCalculator(options: {
+  plotData: { high: number; low: number }[];
+  xDomain: any;
+  xAccessor: any;
+  displayXAccessor: any;
+  fullData: any[];
+}): number[] {
+  const { plotData } = options; // Now we destructure from the single 'options' parameter
+  let min = Number.POSITIVE_INFINITY;
+  let max = Number.NEGATIVE_INFINITY;
+  for (const { low, high } of plotData) {
+    if (low < min) min = low;
+    if (high > max) max = high;
   }
+  if (min === Number.POSITIVE_INFINITY || max === Number.NEGATIVE_INFINITY) {
+    min = 0;
+    max = 0;
+  }
+  const padding = (max - min) * 0.1;
+  return [min - padding, max + padding * 2];
+}
 
+const FinancialChart: React.FC<FinancialChartProps> = ({
+  dateTimeFormat = "%d %b '%y \xa0 %H:%M", // Not used in this snippet, but leftover from d3-time-format
+  height,
+  margin,
+  priceDisplayFormat = (value: number) => {
+    // Basic decimal formatting (2 decimals)
+    return new Intl.NumberFormat("en-US", {
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2,
+    }).format(value);
+  },
+  ratio,
+  width,
+}) => {
+  const { data: initialData, loaded } = CryptoInfo();
+  const [resetCount, setResetCount] = useState(0);
+  console.log(loaded, height, ratio, width);
+  if (!loaded || !height || !ratio || !width) return null;
+
+  // Create scale
   const xScaleProvider =
-    discontinuousTimeScaleProviderBuilder().inputDateAccessor((d) => d.date);
+    discontinuousTimeScaleProviderBuilder().inputDateAccessor(
+      (d: any) => d.date
+    );
+  const safeData = initialData ?? [];
 
-  const {
-    data: chartData,
-    xScale,
-    xAccessor,
-    displayXAccessor,
-  } = xScaleProvider(data);
+  const { data, xScale, xAccessor, displayXAccessor } =
+    xScaleProvider(safeData);
 
-  const defaultVisiblePeriod = 70; // Number of candles to display by default
+  // Show last "width / 5" bars
+  const min = xAccessor(data[Math.max(0, data.length - Math.floor(width / 5))]);
+  const max = xAccessor(data[data.length - 1]);
+  const xExtents = [min, max + 1];
 
-  const xExtents = [
-    xAccessor(chartData[Math.max(0, chartData.length - defaultVisiblePeriod)]),
-    xAccessor(chartData[chartData.length - 1]),
-  ];
+  const gridHeight = height - margin.top - margin.bottom;
+  const barChartHeight = gridHeight / 5;
+  const barChartOrigin = (_: number, h: number) => [0, h - barChartHeight];
 
   return (
-    <div>
-      <h1>Binance Candlestick Chart</h1>
-
-      {/* 심볼 선택 드롭다운 */}
-      <div style={{ marginBottom: "20px" }}>
-        <label>Select Symbol: </label>
-        <select
-          value={selectedSymbol}
-          onChange={(e) => setSelectedSymbol(e.target.value)}
-        >
-          {symbols.map((symbol) => (
-            <option key={symbol} value={symbol}>
-              {symbol}
-            </option>
-          ))}
-        </select>
-      </div>
-      {/* 시간 단위 선택 드롭다운 */}
-      <div style={{ marginBottom: "20px" }}>
-        <label>Interval: </label>
-        <select
-          value={selectedInterval}
-          onChange={(e) => setSelectedInterval(e.target.value)}
-        >
-          <option value="5m">5분</option>
-          <option value="1h">1시간</option>
-          <option value="1d">일</option>
-        </select>
-      </div>
-
-      {/* 차트 렌더링 */}
-      <ChartCanvas
-        height={500}
-        width={800}
-        ratio={window.devicePixelRatio || 1}
-        data={chartData}
-        xScale={xScale}
-        xAccessor={xAccessor}
-        displayXAccessor={displayXAccessor}
-        xExtents={xExtents} // Apply calculated xExtents
-        seriesName={selectedSymbol}
+    <ChartCanvas
+      height={height}
+      ratio={ratio}
+      width={width}
+      margin={margin}
+      seriesName={`Chart ${resetCount}`}
+      data={data}
+      xScale={xScale}
+      xAccessor={xAccessor}
+      displayXAccessor={displayXAccessor}
+      xExtents={xExtents}
+      zoomAnchor={lastVisibleItemBasedZoomAnchor}
+    >
+      {/* Volume Chart */}
+      <Chart
+        id={1}
+        height={barChartHeight}
+        origin={barChartOrigin}
+        yExtents={(d: any) => d.volume}
       >
-        {/* Candlestick Chart */}
-        <Chart id={1} height={350} yExtents={(d: KlineData) => [d.high, d.low]}>
-          <YAxis />
-          <CandlestickSeries />
-        </Chart>
+        <BarSeries
+          fillStyle={(d: any) =>
+            d.close > d.open
+              ? "rgba(38, 166, 154, 0.3)"
+              : "rgba(239, 83, 80, 0.3)"
+          }
+          yAccessor={(d: any) => d.volume}
+        />
+      </Chart>
 
-        {/* Volume Chart */}
-        <Chart
-          id={2}
-          height={120}
-          yExtents={(d: KlineData) => d.volume}
-          origin={(w, h) => [0, 350 + 10]}
-        >
-          <XAxis />
-          <YAxis />
-          <BarSeries yAccessor={(d: KlineData) => d.volume} />
-        </Chart>
-      </ChartCanvas>
-    </div>
+      {/* Main Price Chart */}
+      <Chart id={2} yExtentsCalculator={yExtentsCalculator}>
+        <XAxis {...axisStyles} showGridLines />
+        <MouseCoordinateX
+          // Replacing the old 'timeFormat' usage with a simpler numeric or date approach
+          displayFormat={(val: number) => {
+            // A basic date format:
+            return new Intl.DateTimeFormat("en-US", {
+              month: "short",
+              day: "2-digit",
+              year: "2-digit",
+              hour: "2-digit",
+              minute: "2-digit",
+            }).format(val);
+          }}
+          {...coordinateStyles}
+        />
+        <YAxis {...axisStyles} showGridLines />
+        <MouseCoordinateY
+          rectWidth={margin.right}
+          displayFormat={priceDisplayFormat}
+          {...coordinateStyles}
+        />
+        <EdgeIndicator
+          itemType="last"
+          rectWidth={margin.right}
+          fill={openCloseColor}
+          lineStroke={openCloseColor}
+          displayFormat={priceDisplayFormat}
+          yAccessor={(d: any) => d.close}
+        />
+        <CandlestickSeries />
+        <OHLCTooltip
+          origin={[8, 16]}
+          textFill={openCloseColor}
+          className="react-no-select"
+        />
+        <ZoomButtons
+          onReset={() => setResetCount((prev) => prev + 1)}
+          {...zoomButtonStyles}
+        />
+      </Chart>
+      <CrossHairCursor {...crossHairStyles} />
+    </ChartCanvas>
   );
 };
 
-export default FinancialChart;
+export const ChartView = withSize()(
+  withDeviceRatio()(
+    FinancialChart as unknown as React.ComponentClass<FinancialChartProps>
+  )
+);
+
+export default ChartView;

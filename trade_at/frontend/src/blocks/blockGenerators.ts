@@ -1,5 +1,6 @@
 import * as Blockly from "blockly/core";
 import { javascriptGenerator } from "blockly/javascript";
+import 'blockly/blocks';
 
 export function defineGenerators() {
   // Define the RSI Block Generator
@@ -16,5 +17,20 @@ export function defineGenerators() {
     const signal = block.getFieldValue("MACD_SIGNAL");
     const code = `{"type":"MACD","fast":${fast},"slow":${slow},"signal":${signal}}`;
     return [code, javascriptGenerator.ORDER_ATOMIC];
+  };
+
+  javascriptGenerator.forBlock["when_clicked"] = function (block) {
+    // Generate code for any statements attached beneath “When clicked”
+    const statements = javascriptGenerator.statementToCode(block, "NEXT");
+
+    // We might wrap these statements in a function or simply inline them.
+    // Here, we’ll just inline them:
+    const code = `
+    // ========== WHEN FLAG CLICKED ==========
+    (function() {
+      ${statements}
+    })();
+    `;
+    return code;
   };
 }

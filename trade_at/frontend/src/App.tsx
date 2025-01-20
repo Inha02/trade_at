@@ -73,7 +73,19 @@ function App() {
       </div>
       <div style={{ width: "50%" }}>
         <h2>Results</h2>
-        <ChartView margin={margin}/>
+        <div style={{ height: "200vh" }}>
+          <div
+            style={{
+              backgroundColor: "#191c27",
+              minHeight: "80vh",
+              display: "flex",
+              flexDirection: "column",
+            }}
+          >
+            {/* ChartView is wrapped in a flex container */}
+            <ChartView margin={{ left: 0, right: 48, top: 0, bottom: 24 }} />
+          </div>
+        </div>
       </div>
     </div>
   );

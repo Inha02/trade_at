@@ -1,3 +1,4 @@
+import axios from "axios";
 import { useEffect, useState } from "react";
 
 /** Basic interface for a candlestick data point */
@@ -44,6 +45,15 @@ interface UseMarketDataReturn {
  * @param limit max number of candles to fetch (1-1000)
  * @returns { data, loaded }
  */
+
+export const fetchSymbols = async (): Promise<string[]> => {
+  const url = `https://api.binance.com/api/v3/exchangeInfo`;
+  const response = await axios.get(url);
+  return response.data.symbols
+    .filter((symbol: { quoteAsset: string }) => symbol.quoteAsset === "USDT") // USDT 페어만 필터링
+    .map((symbol: { symbol: string }) => symbol.symbol);
+};
+
 export function CryptoInfo(
   symbol: string = "BTCUSDT",
   interval: BinanceInterval = "1h",

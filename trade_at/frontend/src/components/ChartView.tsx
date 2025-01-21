@@ -167,7 +167,9 @@ const FinancialChart: React.FC<CombinedProps> = ({
 
   const gridHeight = height - margin.top - margin.bottom;
   const barChartHeight = gridHeight / 5;
-  const barChartOrigin = (_: number, h: number) => [0, h - barChartHeight];
+  const barChartOrigin = (_: number, h: number) => [0, h - barChartHeight - gapBetweenCharts,];
+  const gapBetweenCharts = 20;
+  const volumePadding = 0.5;
 
   if (!loaded) return <div>Loading chart data...</div>;
 
@@ -241,7 +243,12 @@ const FinancialChart: React.FC<CombinedProps> = ({
         height={height}
         width={width}
         ratio={ratio}
-        margin={margin}
+        margin={{
+          top: margin.top,
+          right: margin.right,
+          bottom: margin.bottom + gapBetweenCharts, // bottom에 간격 추가
+          left: margin.left,
+        }}
         seriesName={`Chart ${resetCount}`}
         data={data}
         xScale={xScale}
@@ -255,8 +262,20 @@ const FinancialChart: React.FC<CombinedProps> = ({
           id={1}
           height={barChartHeight}
           origin={barChartOrigin}
-          yExtents={(d: any) => d.volume}
+          yExtents={(d: any) => {
+            const maxVolume = Math.max(...data.map((item) => item.volume || 0));
+            return [0, maxVolume + maxVolume * volumePadding];
+          }}
         >
+          <YAxis
+            {...axisStyles}
+            tickFormat={(val: number) =>
+              new Intl.NumberFormat("en-US", {
+                notation: "compact",
+                compactDisplay: "short",
+              }).format(val)
+            }
+          />
           <BarSeries
             fillStyle={(d: any) =>
               d.close > d.open
@@ -270,6 +289,7 @@ const FinancialChart: React.FC<CombinedProps> = ({
         {/* Main Price Chart */}
         <Chart
           id={2}
+          height={gridHeight - barChartHeight - gapBetweenCharts}
           yExtentsCalculator={(options: any) => yExtentsCalculator(options)}
         >
           <XAxis {...axisStyles} showGridLines />

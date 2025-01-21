@@ -16,8 +16,10 @@ import {
   withSize,
   withDeviceRatio,
 } from "react-financial-charts";
+import { Line } from "react-chartjs-2";
 import { CryptoInfo, fetchSymbols } from "../data/CryptoInfo";
 import OHLCTooltip from "./OHLCTooltips";
+import IndicatorChart from "./IndicatorChart";
 
 type BinanceInterval =
   | "1m"
@@ -74,8 +76,6 @@ const allTimeframes = [
   "1w",
   "1M",
 ];
-const openCloseColor = (d: { close: number; open: number }) =>
-  d.close > d.open ? "#26a69a" : "#ef5350";
 
 // A simple yExtents calculator
 function yExtentsCalculator({
@@ -107,11 +107,18 @@ interface FinancialChartProps {
   margin: { left: number; right: number; top: number; bottom: number };
 }
 
-const FinancialChart: React.FC<FinancialChartProps> = ({
+interface ChartViewProps {
+  onDataChange: (data: any[]) => void; // Callback to send data to parent
+}
+
+type CombinedProps = FinancialChartProps & ChartViewProps;
+
+const FinancialChart: React.FC<CombinedProps> = ({
   height,
   width,
   ratio,
   margin,
+  onDataChange,
 }) => {
   const [symbols, setSymbols] = useState<string[]>([]);
   const [selectedSymbol, setSelectedSymbol] = useState<string>("BTCUSDT");
@@ -141,6 +148,13 @@ const FinancialChart: React.FC<FinancialChartProps> = ({
     () => xScaleProvider(safeData),
     [safeData]
   );
+
+  useEffect(() => {
+    // Pass the data to the parent whenever it changes
+    if (loaded) {
+      onDataChange(data);
+    }
+  }, [data, loaded, onDataChange]);
 
   const xExtents = useMemo(() => {
     if (data.length === 0) return [0, 1];
@@ -303,7 +317,7 @@ const FinancialChart: React.FC<FinancialChartProps> = ({
 
 export const ChartView = withSize()(
   withDeviceRatio()(
-    FinancialChart as unknown as React.ComponentClass<FinancialChartProps>
+    FinancialChart as unknown as React.ComponentClass<CombinedProps>
   )
 );
 

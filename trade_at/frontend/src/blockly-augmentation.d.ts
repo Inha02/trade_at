@@ -4,5 +4,6 @@ import { JavascriptGenerator } from "blockly/javascript";
 declare module "blockly/javascript" {
   interface JavascriptGenerator {
     ORDER_ATOMIC: number; // Add ORDER_ATOMIC to the type definition
+    ORDER_NONE: number;
   }
 }

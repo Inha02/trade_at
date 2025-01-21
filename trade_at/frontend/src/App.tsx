@@ -1,93 +1,18 @@
-import React, { useState } from "react";
-import StrategyBlockly from "./components/StrategyBlockly";
-import ChartView from "./components/ChartView";
-
-interface Candle {
-  time: number;
-  open: number;
-  high: number;
-  low: number;
-  close: number;
-  volume: number;
-}
-
-interface Trade {
-  index: number;
-  type: "BUY" | "SELL";
-  price: number;
-  time: number;
-}
+import React from "react";
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import Home from "./pages/home";
+import ChartPage from "./pages/chartPage";
 
 function App() {
-  const [blocklyCode, setBlocklyCode] = useState("");
-  const [candles, setCandles] = useState<Candle[]>([]);
-  const [trades, setTrades] = useState<Trade[]>([]);
-
-  const [symbol, setSymbol] = useState("BTCUSDT");
-  const [timeframe, setTimeframe] = useState("1h");
-
-  const handleBacktest = async () => {
-    // Parse the code (multiple lines => multiple JSON objects)
-    const lines = blocklyCode
-      .trim()
-      .split("\n")
-      .map((str) => str.trim())
-      .filter(Boolean);
-    const parsedBlocks = lines.map((line) => JSON.parse(line));
-
-    let rsiPeriod = 14;
-    let macdFast = 12;
-    let macdSlow = 26;
-    let macdSignal = 9;
-
-    parsedBlocks.forEach((block: any) => {
-      if (block.type === "RSI") {
-        rsiPeriod = block.period;
-      } else if (block.type === "MACD") {
-        macdFast = block.fast;
-        macdSlow = block.slow;
-        macdSignal = block.signal;
-      }
-    });
-
-    const strategyConfig = { rsiPeriod, macdFast, macdSlow, macdSignal };
-
-    const response = await fetch("http://localhost:4000/api/backtest", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ symbol, timeframe, strategyConfig }),
-    });
-
-    const data = await response.json();
-    setCandles(data.candles || []);
-    setTrades(data.trades || []);
-  };
-  const margin = { left: 0, right: 48, top: 0, bottom: 24 };
-
   return (
-    <div style={{ display: "flex", flexDirection: "row" }}>
-      <div style={{ width: "50%" }}>
-        <h2>Strategy Editor</h2>
-        <StrategyBlockly onCodeChange={setBlocklyCode} />
-        <button onClick={handleBacktest}>Run Backtest</button>
-      </div>
-      <div style={{ width: "50%" }}>
-        <h2>Results</h2>
-        <div style={{ height: "200vh" }}>
-          <div
-            style={{
-              backgroundColor: "#191c27",
-              minHeight: "80vh",
-              display: "flex",
-              flexDirection: "column",
-            }}
-          >
-            {/* ChartView is wrapped in a flex container */}
-            <ChartView margin={{ left: 0, right: 48, top: 0, bottom: 24 }} />
-          </div>
-        </div>
-      </div>
-    </div>
+    <Router>
+      <Routes>
+        {/* Home 컴포넌트를 기본 경로에 연결 */}
+        <Route path="/" element={<Home />} />
+        {/* Chart 페이지 */}
+        <Route path="/chart" element={<ChartPage />} />
+      </Routes>
+    </Router>
   );
 }
 

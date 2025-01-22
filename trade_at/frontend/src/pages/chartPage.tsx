@@ -2,7 +2,10 @@ import React, { useEffect, useState } from "react";
 import StrategyBlockly from "../blocks/StrategyBlockly";
 import ChartView from "../components/ChartView";
 import Navbar from "../components/Navbar";
-import { getIndicatorsUsed } from "../blocks/BlockLogics"; // To handle the block logic
+import {
+    getIndicatorsUsed,
+    getIndicatorParameters,
+} from "../blocks/BlockLogics"; // Import updated logic
 import IndicatorChart from "../components/IndicatorChart";
 
 interface Candle {
@@ -26,16 +29,28 @@ const ChartPage: React.FC = () => {
     const [workspace, setWorkspace] = useState<any>(null); // Blockly workspace
     const [chartData, setChartData] = useState<any[]>([]); // ChartView data
     const [indicatorsUsed, setIndicatorsUsed] = useState<string[]>([]);
+    const [rsiPeriod, setRsiPeriod] = useState<number>(14);
+    const [macdFast, setMacdFast] = useState<number>(12);
+    const [macdSlow, setMacdSlow] = useState<number>(26);
+    const [macdSignal, setMacdSignal] = useState<number>(9);
+    const barChartOrigin = (_: number, h: number) => [0, h - 100];
 
-    // Detect indicators whenever the workspace changes
+    // Detect indicators and their parameters whenever the workspace changes
     useEffect(() => {
         if (!workspace) return;
 
         const onWorkspaceChange = () => {
             const detectedIndicators = getIndicatorsUsed(workspace);
             setIndicatorsUsed(detectedIndicators);
-        };
 
+            // Get the parameters for RSI and MACD
+            const { rsiPeriod, macdFast, macdSlow, macdSignal } =
+                getIndicatorParameters(workspace);
+            setRsiPeriod(rsiPeriod);
+            setMacdFast(macdFast);
+            setMacdSlow(macdSlow);
+            setMacdSignal(macdSignal);
+        };
 
         // Attach listener to workspace
         workspace.addChangeListener(onWorkspaceChange);
@@ -59,7 +74,15 @@ const ChartPage: React.FC = () => {
                             indicatorsUsed={indicatorsUsed} // Pass indicators to ChartView
                         />
                     </div>
-                    <IndicatorChart indicatorsUsed={indicatorsUsed} data={chartData} />
+
+                    <IndicatorChart
+                        indicatorsUsed={indicatorsUsed}
+                        data={chartData}
+                        rsiPeriod={rsiPeriod}
+                        macdFast={macdFast}
+                        macdSlow={macdSlow}
+                        macdSignal={macdSignal}
+                    />
 
                 </div>
                 <div style={{ width: "50%", padding: "16px" }}>

@@ -26,11 +26,19 @@ ChartJS.register(
 interface IndicatorChartProps {
   indicatorsUsed: string[];
   data: { close: number; date: Date }[];
+  rsiPeriod: number;
+  macdFast: number;
+  macdSlow: number;
+  macdSignal: number;
 }
 
 const IndicatorChart: React.FC<IndicatorChartProps> = ({
   indicatorsUsed,
   data,
+  rsiPeriod,
+  macdFast,
+  macdSlow,
+  macdSignal,
 }) => {
   const [chartData, setChartData] = useState<any>(null);
   console.log("indicatorsUsed", indicatorsUsed);
@@ -46,7 +54,7 @@ const IndicatorChart: React.FC<IndicatorChartProps> = ({
       let datasets: any[] = [];
 
       if (indicatorsUsed.includes("RSI")) {
-        const rsiData = calculateRSI(data, 14);
+        const rsiData = calculateRSI(data, rsiPeriod);
         datasets.push({
           label: "RSI",
           data: rsiData,
@@ -56,7 +64,7 @@ const IndicatorChart: React.FC<IndicatorChartProps> = ({
       }
 
       if (indicatorsUsed.includes("MACD")) {
-        const macdData = calculateMACD(data, 12, 26, 9);
+        const macdData = calculateMACD(data, macdFast, macdSlow, macdSignal);
         datasets.push(
           {
             label: "MACD",

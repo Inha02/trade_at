@@ -8,7 +8,6 @@ interface CoinData {
 }
 
 const Ranking: React.FC = () => {
-
     // State to manage which tab (category) is active
     const [activeTab, setActiveTab] = useState<string>("price");
     const navigate = useNavigate();
@@ -78,7 +77,9 @@ const Ranking: React.FC = () => {
     const renderTable = () => {
         const currentData = dataByCategory[activeTab];
         return (
-            <table style={{ marginTop: "16px", borderCollapse: "collapse", width: "100%", }}>
+            <table
+                style={{ marginTop: "16px", borderCollapse: "collapse", width: "100%" }}
+            >
                 {/* <thead>
                     <tr>
                         <th style={{ border: "1px solid #ccc", padding: "8px" }}>Rank</th>
@@ -90,7 +91,8 @@ const Ranking: React.FC = () => {
                 </thead> */}
                 <tbody>
                     {currentData.map((coin) => (
-                        <tr key={coin.rank}
+                        <tr
+                            key={coin.rank}
                             onClick={() => handleRowClick(coin.rank)}
                             style={{
                                 cursor: "pointer",
@@ -99,16 +101,36 @@ const Ranking: React.FC = () => {
                             onMouseEnter={(e) =>
                                 (e.currentTarget.style.backgroundColor = "#e0e0e0")
                             }
-                            onMouseLeave={(e) =>
-                                (e.currentTarget.style.backgroundColor = "")
-                            }>
-                            <td style={{ border: "1px solid #ccc", padding: "8px", textAlign: "center", width: "10%", }}>
+                            onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = "")}
+                        >
+                            <td
+                                style={{
+                                    border: "1px solid #ccc",
+                                    padding: "8px",
+                                    textAlign: "center",
+                                    width: "10%",
+                                }}
+                            >
                                 {coin.rank}
                             </td>
-                            <td style={{ border: "1px solid #ccc", padding: "8px", textAlign: "center", width: "45%", }}>
+                            <td
+                                style={{
+                                    border: "1px solid #ccc",
+                                    padding: "8px",
+                                    textAlign: "center",
+                                    width: "45%",
+                                }}
+                            >
                                 {coin.name}
                             </td>
-                            <td style={{ border: "1px solid #ccc", padding: "8px", textAlign: "center", width: "45%", }}>
+                            <td
+                                style={{
+                                    border: "1px solid #ccc",
+                                    padding: "8px",
+                                    textAlign: "center",
+                                    width: "45%",
+                                }}
+                            >
                                 {coin.value}
                             </td>
                         </tr>
@@ -135,10 +157,12 @@ const Ranking: React.FC = () => {
                             transition: "background-color 0.2s ease, color 0.2s ease",
                         }}
                         onMouseEnter={(e) => {
-                            e.currentTarget.style.backgroundColor = activeTab === tab ? "#1e2330" : "#e0e0e0";
+                            e.currentTarget.style.backgroundColor =
+                                activeTab === tab ? "#1e2330" : "#e0e0e0";
                         }}
                         onMouseLeave={(e) => {
-                            e.currentTarget.style.backgroundColor = activeTab === tab ? "#191c27" : "#f0f0f0";
+                            e.currentTarget.style.backgroundColor =
+                                activeTab === tab ? "#191c27" : "#f0f0f0";
                         }}
                     >
                         {tab.charAt(0).toUpperCase() + tab.slice(1)}
@@ -148,7 +172,6 @@ const Ranking: React.FC = () => {
             {renderTable()}
         </div>
     );
-
 };
 
 export default Ranking;

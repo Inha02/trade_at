@@ -8,9 +8,10 @@ const Home: React.FC = () => {
         <div>
             {/* 상단 메뉴바 */}
             <Navbar />
-            <div style={{ textAlign: "center", padding: "2rem" }}>
-                <h1>Welcome to Crypto Analysis</h1>
+            <div style={{ textAlign: "left", padding: "2rem" }}>
+                <h1>Welcome to trade_at</h1>
                 <p>Analyze and monitor your favorite cryptocurrencies.</p>
+                <div style={{ marginBottom: "4rem" }}></div>
                 {/* Ranking 컴포넌트 포함 */}
                 <Ranking />
             </div>

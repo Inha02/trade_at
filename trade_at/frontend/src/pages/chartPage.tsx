@@ -64,27 +64,33 @@ const ChartPage: React.FC = () => {
     };
 
     return (
-        <div>
+        <div style={{ height: "100vh" }}>
             <Navbar />
             <div style={{ display: "flex", flexDirection: "row" }}>
+
                 <div style={{ width: "50%" }}>
-                    <h2>Strategy Editor</h2>
+                    <div style={{ textAlign: "center" }}>
+                        <h2>Strategy Editor</h2>
+                    </div>
                     <StrategyBlockly onCodeChange={setBlocklyCode} />
                     <button onClick={handleBacktest}>Run Backtest</button>
                 </div>
+
                 <div style={{ width: "50%" }}>
-                    <h2>Results</h2>
-                    <div style={{ height: "200vh" }}>
+                    <div style={{ textAlign: "center" }}>
+                        <h2>Results</h2>
+                    </div>
+                    <div style={{ height: "100%" }}>
                         <div
                             style={{
                                 backgroundColor: "#191c27",
-                                minHeight: "80vh",
+                                minHeight: "100%",
                                 display: "flex",
                                 flexDirection: "column",
                             }}
                         >
-                            <div style={{ width: "90%", height: "65vh" }}>
-                                <ChartView margin={{ left: 50, right: 50, top: 20, bottom: 30 }} />
+                            <div style={{ width: "97%", height: "65vh" }}>
+                                <ChartView margin={{ left: 50, right: 80, top: 20, bottom: 30 }} />
                             </div>
                         </div>
                     </div>

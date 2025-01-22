@@ -1,4 +1,11 @@
-import React from "react";
+import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
+
+interface CoinData {
+    rank: number;
+    name: string;
+    value: string; // This can be price, trend info, etc. depending on the tab
+}
 
 const Ranking: React.FC = () => {
   const coins = [

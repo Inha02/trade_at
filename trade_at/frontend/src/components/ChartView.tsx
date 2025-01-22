@@ -18,7 +18,6 @@ import {
 } from "react-financial-charts";
 import { CryptoInfo, fetchSymbols } from "../data/CryptoInfo";
 import OHLCTooltip from "./OHLCTooltips";
-import IndicatorChart from "./IndicatorChart";
 
 type BinanceInterval =
   | "1m"
@@ -166,10 +165,12 @@ const FinancialChart: React.FC<FinancialChartProps> = ({
   if (!loaded) return <div>Loading chart data...</div>;
 
   return (
+
     <div style={{ padding: "16px" }}>
+
       {/* Symbol Selector */}
       <div style={{ marginBottom: "10px" }}>
-        <label>Symbol: </label>
+        <label style={{ color: "#FFFFFF" }}>Symbol: </label>
         <select
           value={selectedSymbol}
           onChange={(e) => setSelectedSymbol(e.target.value)}
@@ -181,6 +182,7 @@ const FinancialChart: React.FC<FinancialChartProps> = ({
           ))}
         </select>
       </div>
+
       {/* Time Period Selection */}
       <div
         style={{

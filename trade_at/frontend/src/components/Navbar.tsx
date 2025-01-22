@@ -2,6 +2,7 @@ import React from "react";
 import { Link } from "react-router-dom";
 
 const Navbar: React.FC = () => {
+
     return (
         <nav style={styles.navbar}>
             <ul style={styles.navList}>
@@ -38,6 +39,7 @@ const styles = {
         margin: "0 0rem",
         lineHeight: "2.4rem",
     },
+
 };
 
 export default Navbar;

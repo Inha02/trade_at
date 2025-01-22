@@ -24,7 +24,7 @@ export function defineCustomBlocks() {
       this.appendDummyInput()
         .appendField("RSI Period")
         .appendField(new Blockly.FieldNumber(14, 1, 100, 1), "RSI_PERIOD");
-      this.setOutput(true, "Number");
+      this.setOutput(true, ["Number", "Indicator"]);
       this.setColour(230);
       this.setTooltip("Specify RSI period");
       this.setHelpUrl("");
@@ -39,26 +39,42 @@ export function defineCustomBlocks() {
         .appendField(new Blockly.FieldNumber(12, 1, 100, 1), "MACD_FAST")
         .appendField(new Blockly.FieldNumber(26, 1, 100, 1), "MACD_SLOW")
         .appendField(new Blockly.FieldNumber(9, 1, 50, 1), "MACD_SIGNAL");
-      this.setOutput(true, "Array");
+      this.setOutput(true, ["Array", "Indicator"]);
       this.setColour(210);
       this.setTooltip("Specify MACD parameters");
       this.setHelpUrl("");
     },
   };
 
+  // When clicked block
   Blockly.Blocks["when_clicked"] = {
     init: function () {
       this.jsonInit({
         type: "when_clicked",
-        message0: "When flag clicked",
-        nextStatement: null,
-        colour: 65, // choose a distinct color
-        tooltip:
-          "Runs the blocks inside when the flag is clicked (start of strategy).",
+        message0: "When clicked",
+        nextStatement: null, // Allows other blocks to connect below
+        colour: 65, // Block color
+        tooltip: "This is the starting point for your logic.",
         helpUrl: "",
-        // Mark it as a "hat block" so it can’t be placed under anything else
-        hat: "cap",
+        hat: "cap", // Marks it as a hat block (starting block)
       });
+    },
+  };
+
+  // Draw Indicators Block
+  Blockly.Blocks["draw_indicators"] = {
+    init: function () {
+      this.appendValueInput("INDICATOR_1")
+        .setCheck("Indicator") // Accepts output blocks with "Indicator" type
+        .appendField("Add first indicator");
+
+      this.appendValueInput("INDICATOR_2")
+        .setCheck("Indicator") // Accepts output blocks with "Indicator" type
+        .appendField("Add second indicator");
+
+      this.setColour(160);
+      this.setTooltip("Draw the selected indicators on the chart.");
+      this.setHelpUrl("");
     },
   };
 }

@@ -4,6 +4,7 @@ import Navbar from "../components/Navbar"; // 상단 메뉴바
 import Ranking from "../components/Ranking"; // 랭킹 컴포넌트
 
 const Home: React.FC = () => {
+
     return (
         <div>
             {/* 상단 메뉴바 */}
@@ -17,6 +18,7 @@ const Home: React.FC = () => {
             </div>
         </div>
     );
+
 };
 
 export default Home;

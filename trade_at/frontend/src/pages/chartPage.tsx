@@ -1,7 +1,9 @@
-import React, { useState } from "react";
-import StrategyBlockly from "../components/StrategyBlockly";
+import React, { useEffect, useState } from "react";
+import StrategyBlockly from "../blocks/StrategyBlockly";
 import ChartView from "../components/ChartView";
 import Navbar from "../components/Navbar";
+import { getIndicatorsUsed } from "../blocks/BlockLogics"; // To handle the block logic
+import IndicatorChart from "../components/IndicatorChart";
 
 interface Candle {
     time: number;
@@ -21,79 +23,53 @@ interface Trade {
 
 const ChartPage: React.FC = () => {
     const [blocklyCode, setBlocklyCode] = useState("");
-    const [candles, setCandles] = useState<Candle[]>([]);
-    const [trades, setTrades] = useState<Trade[]>([]);
+    const [workspace, setWorkspace] = useState<any>(null); // Blockly workspace
+    const [chartData, setChartData] = useState<any[]>([]); // ChartView data
+    const [indicatorsUsed, setIndicatorsUsed] = useState<string[]>([]);
 
-    const [symbol, setSymbol] = useState("BTCUSDT");
-    const [timeframe, setTimeframe] = useState("1h");
+    // Detect indicators whenever the workspace changes
+    useEffect(() => {
+        if (!workspace) return;
 
-    const handleBacktest = async () => {
-        const lines = blocklyCode
-            .trim()
-            .split("\n")
-            .map((str) => str.trim())
-            .filter(Boolean);
-        const parsedBlocks = lines.map((line) => JSON.parse(line));
+        const onWorkspaceChange = () => {
+            const detectedIndicators = getIndicatorsUsed(workspace);
+            setIndicatorsUsed(detectedIndicators);
+        };
 
-        let rsiPeriod = 14;
-        let macdFast = 12;
-        let macdSlow = 26;
-        let macdSignal = 9;
 
-        parsedBlocks.forEach((block: any) => {
-            if (block.type === "RSI") {
-                rsiPeriod = block.period;
-            } else if (block.type === "MACD") {
-                macdFast = block.fast;
-                macdSlow = block.slow;
-                macdSignal = block.signal;
-            }
-        });
+        // Attach listener to workspace
+        workspace.addChangeListener(onWorkspaceChange);
 
-        const strategyConfig = { rsiPeriod, macdFast, macdSlow, macdSignal };
-
-        const response = await fetch("http://localhost:4000/api/backtest", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ symbol, timeframe, strategyConfig }),
-        });
-
-        const data = await response.json();
-        setCandles(data.candles || []);
-        setTrades(data.trades || []);
-    };
+        // Cleanup listener on unmount
+        return () => {
+            workspace.removeChangeListener(onWorkspaceChange);
+        };
+    }, [workspace]);
 
     return (
-        <div style={{ height: "100vh" }}>
+        <div>
             <Navbar />
-            <div style={{ display: "flex", flexDirection: "row" }}>
-
-                <div style={{ width: "50%" }}>
-                    <div style={{ textAlign: "center" }}>
-                        <h2>Strategy Editor</h2>
+            <div style={{ display: "flex", flexDirection: "row", gap: "16px" }}>
+                <div style={{ width: "50%", padding: "16px" }}>
+                    <h2>Results</h2>
+                    <div style={{ backgroundColor: "#191c27", minHeight: "80vh" }}>
+                        <ChartView
+                            onDataChange={setChartData} // Capture chart data
+                            margin={{ left: 50, right: 50, top: 20, bottom: 30 }}
+                            indicatorsUsed={indicatorsUsed} // Pass indicators to ChartView
+                        />
                     </div>
-                    <StrategyBlockly onCodeChange={setBlocklyCode} />
-                    <button onClick={handleBacktest}>Run Backtest</button>
+
+                    <IndicatorChart indicatorsUsed={indicatorsUsed} data={chartData} />
+
                 </div>
-
-                <div style={{ width: "50%" }}>
-                    <div style={{ textAlign: "center" }}>
-                        <h2>Results</h2>
-                    </div>
-                    <div style={{ height: "100%" }}>
-                        <div
-                            style={{
-                                backgroundColor: "#191c27",
-                                minHeight: "100%",
-                                display: "flex",
-                                flexDirection: "column",
-                            }}
-                        >
-                            <div style={{ width: "97%", height: "65vh" }}>
-                                <ChartView margin={{ left: 50, right: 80, top: 20, bottom: 30 }} />
-                            </div>
-                        </div>
-                    </div>
+                <div style={{ width: "50%", padding: "16px" }}>
+                    <h2>Strategy Editor</h2>
+                    <StrategyBlockly
+                        onCodeChange={setBlocklyCode}
+                        onWorkspaceChange={setWorkspace} // Capture workspace
+                    />
+                    <button style={{ marginTop: "16px" }}>Run Backtest</button>
                 </div>
             </div>
         </div>

@@ -16,8 +16,9 @@ import {
   withSize,
   withDeviceRatio,
 } from "react-financial-charts";
-import { CryptoInfo, fetchSymbols } from "../data/CryptoInfo";
+import { CryptoInfo, fetchSymbols } from "../data/cryptoInfo";
 import OHLCTooltip from "./OHLCTooltips";
+import IndicatorChart from "./IndicatorChart";
 
 type BinanceInterval =
   | "1m"
@@ -50,13 +51,6 @@ const coordinateStyles = {
   textFill: "#FFFFFF",
 };
 
-const zoomButtonStyles = {
-  fill: "#383E55",
-  fillOpacity: 0.75,
-  strokeWidth: 0,
-  textFill: "#9EAAC7",
-};
-
 const crossHairStyles = {
   strokeStyle: "#9EAAC7",
 };
@@ -74,8 +68,6 @@ const allTimeframes = [
   "1w",
   "1M",
 ];
-const openCloseColor = (d: { close: number; open: number }) =>
-  d.close > d.open ? "#26a69a" : "#ef5350";
 
 // A simple yExtents calculator
 function yExtentsCalculator({
@@ -105,6 +97,8 @@ interface FinancialChartProps {
   width: number;
   ratio: number;
   margin: { left: number; right: number; top: number; bottom: number };
+  onDataChange: (data: any[]) => void; // Callback to send data to parent
+  indicatorsUsed: string[];
 }
 
 const FinancialChart: React.FC<FinancialChartProps> = ({
@@ -112,6 +106,8 @@ const FinancialChart: React.FC<FinancialChartProps> = ({
   width,
   ratio,
   margin,
+  onDataChange,
+  indicatorsUsed, // New prop
 }) => {
   const [symbols, setSymbols] = useState<string[]>([]);
   const [selectedSymbol, setSelectedSymbol] = useState<string>("BTCUSDT");
@@ -142,6 +138,13 @@ const FinancialChart: React.FC<FinancialChartProps> = ({
     [safeData]
   );
 
+  useEffect(() => {
+    // Pass the data to the parent whenever it changes
+    if (loaded) {
+      onDataChange(data);
+    }
+  }, [data, loaded, onDataChange]);
+
   const xExtents = useMemo(() => {
     if (data.length === 0) return [0, 1];
     const min = xAccessor(
@@ -153,7 +156,10 @@ const FinancialChart: React.FC<FinancialChartProps> = ({
 
   const gridHeight = height - margin.top - margin.bottom;
   const barChartHeight = gridHeight / 5;
-  const barChartOrigin = (_: number, h: number) => [0, h - barChartHeight - gapBetweenCharts,];
+  const barChartOrigin = (_: number, h: number) => [
+    0,
+    h - barChartHeight - gapBetweenCharts,
+  ];
   const gapBetweenCharts = 20;
   const volumePadding = 0.5;
 

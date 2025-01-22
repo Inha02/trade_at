@@ -75,10 +75,9 @@ export function CryptoInfo(
         }
         const rawData: any[] = await response.json();
 
-        // rawData is an array of arrays, each element is:
-        // [Open time, Open, High, Low, Close, Volume, Close time, ...]
+        // Parse the response data
         const parsed: MarketData[] = rawData.map((d) => ({
-          date: new Date(d[0]), // open time
+          date: new Date(d[0]),
           open: +d[1],
           high: +d[2],
           low: +d[3],

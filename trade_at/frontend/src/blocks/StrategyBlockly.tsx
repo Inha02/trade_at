@@ -46,7 +46,6 @@ const StrategyBlockly: React.FC<StrategyBlocklyProps> = ({
           onCodeChange(code); // Send generated code to parent
           if (onWorkspaceChange) {
             onWorkspaceChange(workspaceRef.current);
-            console.log("workspace changed");
           }
         });
       }

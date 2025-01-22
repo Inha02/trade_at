@@ -16,7 +16,6 @@ import {
   withSize,
   withDeviceRatio,
 } from "react-financial-charts";
-import { Line } from "react-chartjs-2";
 import { CryptoInfo, fetchSymbols } from "../data/CryptoInfo";
 import OHLCTooltip from "./OHLCTooltips";
 import IndicatorChart from "./IndicatorChart";
@@ -50,13 +49,6 @@ const axisStyles = {
 const coordinateStyles = {
   fill: "#383E55",
   textFill: "#FFFFFF",
-};
-
-const zoomButtonStyles = {
-  fill: "#383E55",
-  fillOpacity: 0.75,
-  strokeWidth: 0,
-  textFill: "#9EAAC7",
 };
 
 const crossHairStyles = {
@@ -105,20 +97,17 @@ interface FinancialChartProps {
   width: number;
   ratio: number;
   margin: { left: number; right: number; top: number; bottom: number };
-}
-
-interface ChartViewProps {
   onDataChange: (data: any[]) => void; // Callback to send data to parent
+  indicatorsUsed: string[];
 }
 
-type CombinedProps = FinancialChartProps & ChartViewProps;
-
-const FinancialChart: React.FC<CombinedProps> = ({
+const FinancialChart: React.FC<FinancialChartProps> = ({
   height,
   width,
   ratio,
   margin,
   onDataChange,
+  indicatorsUsed, // New prop
 }) => {
   const [symbols, setSymbols] = useState<string[]>([]);
   const [selectedSymbol, setSelectedSymbol] = useState<string>("BTCUSDT");
@@ -167,7 +156,10 @@ const FinancialChart: React.FC<CombinedProps> = ({
 
   const gridHeight = height - margin.top - margin.bottom;
   const barChartHeight = gridHeight / 5;
-  const barChartOrigin = (_: number, h: number) => [0, h - barChartHeight - gapBetweenCharts,];
+  const barChartOrigin = (_: number, h: number) => [
+    0,
+    h - barChartHeight - gapBetweenCharts,
+  ];
   const gapBetweenCharts = 20;
   const volumePadding = 0.5;
 
@@ -337,7 +329,7 @@ const FinancialChart: React.FC<CombinedProps> = ({
 
 export const ChartView = withSize()(
   withDeviceRatio()(
-    FinancialChart as unknown as React.ComponentClass<CombinedProps>
+    FinancialChart as unknown as React.ComponentClass<FinancialChartProps>
   )
 );
 

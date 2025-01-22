@@ -31,6 +31,8 @@ const IndicatorChart: React.FC<IndicatorChartProps> = ({
   data,
 }) => {
   const [chartData, setChartData] = useState<any>(null);
+  console.log("indicatorsUsed", indicatorsUsed);
+  console.log("data", data);
 
   useEffect(() => {
     const calculateIndicators = () => {

@@ -8,7 +8,7 @@ interface CoinData {
 }
 
 const Ranking: React.FC = () => {
-<<<<<<< HEAD
+
     // State to manage which tab (category) is active
     const [activeTab, setActiveTab] = useState<string>("price");
     const navigate = useNavigate();
@@ -148,26 +148,7 @@ const Ranking: React.FC = () => {
             {renderTable()}
         </div>
     );
-=======
-  const coins = [
-    { rank: 1, name: "Bitcoin", price: "$40,000" },
-    { rank: 2, name: "Ethereum", price: "$2,500" },
-    { rank: 3, name: "Cardano", price: "$1.20" },
-  ];
 
-  return (
-    <div>
-      <h2>Top Coins</h2>
-      <ul>
-        {coins.map((coin) => (
-          <li key={coin.rank}>
-            {coin.rank}. {coin.name} - {coin.price}
-          </li>
-        ))}
-      </ul>
-    </div>
-  );
->>>>>>> b8a25f9a6c30c58ec37af2fe4d9e7922964329d2
 };
 
 export default Ranking;

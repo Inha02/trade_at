@@ -47,19 +47,18 @@ const ChartPage: React.FC = () => {
     }, [workspace]);
 
     return (
-        <div>
+        <div style={{ height: "100vh" }}>
             <Navbar />
-            <div style={{ display: "flex", flexDirection: "row", gap: "16px" }}>
-                <div style={{ width: "50%", padding: "16px" }}>
+            <div style={{ display: "flex", flexDirection: "row", gap: "0px" }}>
+                <div style={{ width: "50%", padding: "16px", display: "flex", flexDirection: "column", gap: "16px" }}>
                     <h2>Results</h2>
-                    <div style={{ backgroundColor: "#191c27", minHeight: "80vh" }}>
+                    <div style={{ backgroundColor: "#191c27", width: "100%", height: "65vh" }}>
                         <ChartView
                             onDataChange={setChartData} // Capture chart data
-                            margin={{ left: 50, right: 50, top: 20, bottom: 30 }}
+                            margin={{ left: 0, right: 100, top: 10, bottom: 100 }}
                             indicatorsUsed={indicatorsUsed} // Pass indicators to ChartView
                         />
                     </div>
-
                     <IndicatorChart indicatorsUsed={indicatorsUsed} data={chartData} />
 
                 </div>

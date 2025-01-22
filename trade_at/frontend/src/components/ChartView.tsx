@@ -302,7 +302,7 @@ const FinancialChart: React.FC<FinancialChartProps> = ({
           />
           <YAxis {...axisStyles} showGridLines />
           <MouseCoordinateY
-            rectWidth={margin.right}
+            rectWidth={margin.right - 20}
             displayFormat={(value: number) =>
               new Intl.NumberFormat("en-US", {
                 minimumFractionDigits: 2,
@@ -313,7 +313,7 @@ const FinancialChart: React.FC<FinancialChartProps> = ({
           />
           <EdgeIndicator
             itemType="last"
-            rectWidth={margin.right}
+            rectWidth={margin.right - 20}
             fill={(d: any) => (d.close > d.open ? "#26a69a" : "#ef5350")}
             yAccessor={(d: any) => d.close}
           />

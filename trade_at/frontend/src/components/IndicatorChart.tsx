@@ -11,6 +11,7 @@ import {
 import { Line } from "react-chartjs-2";
 import { calculateRSI } from "../utils/calculateRSI";
 import { calculateMACD } from "../utils/calculateMACD";
+import zoomPlugin from "chartjs-plugin-zoom";
 
 ChartJS.register(
   LineElement,
@@ -18,7 +19,8 @@ ChartJS.register(
   LinearScale,
   PointElement,
   Tooltip,
-  Legend
+  Legend,
+  zoomPlugin
 );
 
 interface IndicatorChartProps {
@@ -95,6 +97,18 @@ const IndicatorChart: React.FC<IndicatorChartProps> = ({
       legend: {
         display: true,
         position: "top",
+      },
+      zoom: {
+        pan: {
+          enabled: true,
+          mode: "x",
+        },
+        zoom: {
+          wheel: {
+            enabled: true,
+          },
+          mode: "x",
+        },
       },
     },
     scales: {

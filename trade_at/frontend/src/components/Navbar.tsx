@@ -28,7 +28,7 @@ const styles = {
     homeItem: {
         color: "white",
         textDecoration: "none",
-        margin: "0 1rem",
+        margin: "0 0rem",
         fontSize: "1.5rem", // 크기 키움
         fontWeight: "bold", // 두껍게
 
@@ -36,7 +36,7 @@ const styles = {
     chartItem: {
         color: "gray", // 회색
         textDecoration: "none",
-        margin: "0 0rem",
+        margin: "0 1rem",
         lineHeight: "2.4rem",
     },
 

@@ -16,7 +16,7 @@ import {
   withSize,
   withDeviceRatio,
 } from "react-financial-charts";
-import { CryptoInfo, fetchSymbols } from "../data/CryptoInfo";
+import { CryptoInfo, fetchSymbols } from "../data/cryptoInfo";
 import OHLCTooltip from "./OHLCTooltips";
 
 type BinanceInterval =

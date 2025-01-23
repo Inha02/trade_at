@@ -85,13 +85,23 @@ const ChartPage: React.FC = () => {
                     />
 
                 </div>
-                <div style={{ width: "50%", padding: "16px" }}>
+                <div style={{ width: "50%", padding: "16px", display: "flex", flexDirection: "column", gap: "16px" }}>
                     <h2>Strategy Editor</h2>
-                    <StrategyBlockly
-                        onCodeChange={setBlocklyCode}
-                        onWorkspaceChange={setWorkspace} // Capture workspace
-                    />
-                    <button style={{ marginTop: "16px" }}>Run Backtest</button>
+                    <div style={{ width: "100%", height: "65vh" }}>
+                        <StrategyBlockly
+                            onCodeChange={setBlocklyCode}
+                            onWorkspaceChange={setWorkspace} // Capture workspace
+                        />
+                    </div>
+                    <button
+                        style={{
+                            marginTop: "0",
+                            width: "110px", // 버튼 길이 설정
+                            alignSelf: "flex-end",
+                        }}
+                    >
+                        Run Backtest
+                    </button>
                 </div>
             </div>
         </div>

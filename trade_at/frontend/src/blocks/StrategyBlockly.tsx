@@ -50,6 +50,11 @@ const StrategyBlockly: React.FC<StrategyBlocklyProps> = ({
         });
       }
     }
+    const toolboxElement = document.querySelector(".blocklyToolboxDiv");
+    if (toolboxElement) {
+      (toolboxElement as HTMLElement).style.backgroundColor = "#191c27"; // 배경색
+      (toolboxElement as HTMLElement).style.color = "white"; // 글자색
+    }
 
     return () => {
       // Clean up the Blockly workspace on unmount
@@ -60,7 +65,7 @@ const StrategyBlockly: React.FC<StrategyBlocklyProps> = ({
   // Function to dynamically generate the toolbox XML
   const generateToolbox = (): string => {
     return `
-      <xml id="toolbox" style="display: none">
+      <xml id="toolbox" style="display: none; background-color: #191c27; color: white;">
         <category name="Events">
           <block type="when_clicked"></block>
         </category>
@@ -89,7 +94,7 @@ const StrategyBlockly: React.FC<StrategyBlocklyProps> = ({
     `;
   };
 
-  return <div style={{ height: "600px", width: "100%" }} ref={blocklyDiv} />;
+  return <div style={{ height: "585px", width: "100%", }} ref={blocklyDiv} />;
 };
 
 export default StrategyBlockly;
